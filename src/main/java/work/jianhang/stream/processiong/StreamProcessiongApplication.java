@@ -29,10 +29,8 @@ public class StreamProcessiongApplication {
             @Override
             public void consume(EventConsumer eventConsumer) {
                 //log.info("runEventStream...");
-                for (int i = 0; i< 10000;i++) {
-                    Event event = new Event(new Random().nextInt(), UUID.randomUUID());
-                    eventConsumer.consume(event);
-                }
+                Event event = new Event(new Random().nextInt(), UUID.randomUUID());
+                eventConsumer.consume(event);
             }
         };
 
@@ -40,7 +38,7 @@ public class StreamProcessiongApplication {
         ProjectionMetrics metrics = new ProjectionMetrics(metricRegistry);
 
         ClientProjection clientProjection = new ClientProjection(metrics);
-        NaivePool naivePool = new NaivePool(10, clientProjection);
+        NaivePool naivePool = new NaivePool(10, clientProjection, metricRegistry);
 
         eventStream.consume(naivePool);
 
