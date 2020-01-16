@@ -1,5 +1,6 @@
 package work.jianhang.stream.processiong;
 
+import com.codahale.metrics.MetricRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,7 +8,9 @@ import work.jianhang.stream.processiong.core.Event;
 import work.jianhang.stream.processiong.core.EventConsumer;
 import work.jianhang.stream.processiong.core.EventStream;
 import work.jianhang.stream.processiong.demo.ClientProjection;
+import work.jianhang.stream.processiong.demo.ProjectionMetrics;
 
+import java.util.Random;
 import java.util.UUID;
 
 @SpringBootApplication
@@ -24,13 +27,19 @@ public class StreamProcessiongApplication {
         EventStream eventStream = new EventStream() {
             @Override
             public void consume(EventConsumer eventConsumer) {
-                log.info("runEventStream...");
-                Event event = new Event(1, UUID.randomUUID());
+                //log.info("runEventStream...");
+                Event event = new Event(new Random().nextInt(), UUID.randomUUID());
                 eventConsumer.consume(event);
             }
         };
 
-        eventStream.consume(new ClientProjection());
+        MetricRegistry metricRegistry = new MetricRegistry();
+        ProjectionMetrics metrics = new ProjectionMetrics(metricRegistry);
+
+        for (int i = 0;i<182000;i++) {
+            eventStream.consume(new ClientProjection(metrics));
+        }
+
     }
 
 }

@@ -14,7 +14,7 @@ public class Sleeper {
     private static final Random RANDOM = new Random();
 
     static void randSleep(double mean, double stdDev) {
-        log.info("Sleeper randSleep...");
+        //log.info("Sleeper randSleep...");
         final double micros = 1_000 * (mean + RANDOM.nextGaussian() * stdDev);
         try {
             TimeUnit.MICROSECONDS.sleep((long) micros);
