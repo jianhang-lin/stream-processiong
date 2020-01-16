@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import work.jianhang.stream.processiong.core.Event;
 import work.jianhang.stream.processiong.core.EventConsumer;
 import work.jianhang.stream.processiong.core.EventStream;
+import work.jianhang.stream.processiong.demo.FailOnConcurrentModification;
 import work.jianhang.stream.processiong.demo.NaivePool;
 import work.jianhang.stream.processiong.demo.ClientProjection;
 import work.jianhang.stream.processiong.demo.ProjectionMetrics;
@@ -29,8 +30,10 @@ public class StreamProcessiongApplication {
             @Override
             public void consume(EventConsumer eventConsumer) {
                 //log.info("runEventStream...");
-                Event event = new Event(new Random().nextInt(), UUID.randomUUID());
-                eventConsumer.consume(event);
+                for (int i=0;i<50;i++) {
+                    Event event = new Event(new Random().nextInt(10), UUID.randomUUID());
+                    eventConsumer.consume(event);
+                }
             }
         };
 
@@ -38,7 +41,8 @@ public class StreamProcessiongApplication {
         ProjectionMetrics metrics = new ProjectionMetrics(metricRegistry);
 
         ClientProjection clientProjection = new ClientProjection(metrics);
-        NaivePool naivePool = new NaivePool(10, clientProjection, metricRegistry);
+        FailOnConcurrentModification failOnConcurrentModification = new FailOnConcurrentModification(clientProjection);
+        NaivePool naivePool = new NaivePool(10, failOnConcurrentModification, metricRegistry);
 
         eventStream.consume(naivePool);
 
